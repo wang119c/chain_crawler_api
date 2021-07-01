@@ -6,7 +6,7 @@ const utility = require('utility');
 class CoinmarketcapNewController extends Controller {
   async index() {
     const { ctx } = this;
-    const { coinmarketcapNew } = ctx.service;
+    const { market } = ctx.service;
     const baseUrl = 'https://coinmarketcap.com';
     const result = await ctx.curl(`${baseUrl}/new/`, {
       method: 'get',
@@ -28,7 +28,7 @@ class CoinmarketcapNewController extends Controller {
       const needParseUrl = `${baseUrl}/currencies/${ctx.helper.hump2Underline(currency_name)}/`;
       const parseData = await this.parseDetail(needParseUrl);
       if (parseData) {
-        coinmarketcapNew.add(parseData);
+        market.add(parseData);
       }
     });
     ctx.body = {

@@ -5,6 +5,7 @@ const utility = require('utility');
 
 class CoinmarketcapGlController extends Controller {
   async index() {
+
     const { ctx } = this;
     const { market } = ctx.service;
     const baseUrl = 'https://coinmarketcap.com';
@@ -13,18 +14,19 @@ class CoinmarketcapGlController extends Controller {
       headers: {
         'user-agent': this.getUserAgent(),
       },
+      timeout: 1000 * 60,
     });
     const htmlData = result.data.toString();
     const $ = cheerio.load(htmlData);
-    const trNode = $('.tableWrapper___3utdq tbody')
+    const trNode = $('tbody')
       .find('tr');
     trNode.each(async (i, elem) => {
-      const currency_name = $(elem)
+      const href = $(elem)
         .find('td')
         .eq(1)
-        .find('.cmc-link>div>div>p')
-        .text();
-      const needParseUrl = `${baseUrl}/currencies/${ctx.helper.hump2Underline(currency_name)}/`;
+        .find('a')
+        .attr('href');
+      const needParseUrl = `${baseUrl}${href}`;
       const parseData = await this.parseDetail(needParseUrl);
       if (parseData) {
         market.add(parseData);
@@ -42,7 +44,7 @@ class CoinmarketcapGlController extends Controller {
       headers: {
         'user-agent': this.getUserAgent(),
       },
-      timeout: 1000 * 20,
+      timeout: 1000 * 60,
     });
 
     const htmlData = result.data.toString();

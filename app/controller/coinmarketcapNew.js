@@ -19,13 +19,12 @@ class CoinmarketcapNewController extends Controller {
     const trNode = $('.cmc-table tbody')
       .find('tr');
     trNode.each(async (i, elem) => {
-      const currency_name = $(elem)
+      const href = $(elem)
         .find('td')
         .eq(2)
-        .find('.cmc-link>div>div>p')
-        .text();
-
-      const needParseUrl = `${baseUrl}/currencies/${ctx.helper.hump2Underline(currency_name)}/`;
+        .find('a')
+        .attr('href');
+      const needParseUrl = `${baseUrl}${href}`;
       const parseData = await this.parseDetail(needParseUrl);
       if (parseData) {
         market.add(parseData);

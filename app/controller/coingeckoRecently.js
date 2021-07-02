@@ -37,8 +37,12 @@ class CoingeckoRecentlyController extends Controller {
             .eq(2)
             .find('.tw-flex>div.center>span')
             .text();
-
-          const needParseUrl = `${baseUrl}/en/coins/${ctx.helper.hump2Underline2(currency_name)}`;
+          const href = $(elem)
+            .find('td')
+            .eq(2)
+            .find('.tw-flex>div.center>a:first')
+            .attr('href');
+          const needParseUrl = `${baseUrl}${href}`;
           const parseData = await this.parseDetail(needParseUrl);
           const newParseData = Object.assign({}, parseData, {
             currencyName: currency_name.trim(),

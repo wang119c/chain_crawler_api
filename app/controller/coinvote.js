@@ -7,17 +7,26 @@ class CoinvoteController extends Controller {
   async coins() {
     const { ctx } = this;
     const { market } = ctx.service;
-    const baseUrl = 'https://coinvote.cc/coins';
-    const result = await ctx.curl(`${baseUrl}/1&order_by=today`, {
+    const baseUrl = 'https://coinvote.cc';
+    const result = await ctx.curl(`${baseUrl}/coins/1&order_by=today`, {
       method: 'get',
       headers: {
         'user-agent': this.getUserAgent(),
       },
+      timeout: 1000 * 60,
     });
     const htmlData = result.data.toString();
     const $ = cheerio.load(htmlData);
     const divNode = $('.regular-table')
-      .find('.redirect-coin');
+      .find('.coin-table.redirect-coin');
+    divNode.each((i, ele) => {
+      const dataHref = $(ele)
+        .attr('data-href');
+      const needParseUrl = `${baseUrl}/${dataHref}`;
+      console.log('============', needParseUrl);
+    });
+
+
     // trNode.each(async (i, elem) => {
     //   const currency_name = $(elem)
     //     .find('td')

@@ -22,7 +22,8 @@ module.exports = appInfo => {
   // 连接mongodb的配置
   config.mongoose = {
     client: {
-      url: 'mongodb://wanghui888:wanghui888@127.0.0.1:27017/crawler?authSource=admin',
+      // url: 'mongodb://wanghui888:wanghui888@127.0.0.1:27017/crawler?authSource=admin',
+      url: 'mongodb://127.0.0.1:27017/crawler',
       options: {},
     },
   };

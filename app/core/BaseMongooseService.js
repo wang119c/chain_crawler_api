@@ -65,7 +65,7 @@ class BaseMongooseService extends Service {
       .skip((next - 1) * limit)
       .sort(sort)
       .limit(limit);
-    return { next: (next + 1), data, total: data.length };
+    return { next: (next + 1), data, total: await this.document.count() };
   }
 
   /**
@@ -74,14 +74,15 @@ class BaseMongooseService extends Service {
    * @param {Array} includs 返回数据包含字段数组，为空返回全部字段
    * @return {Array} 查询结果
    */
-  async find(option, includs) {
+  async find(option, includs, sort) {
     const projection = {};
     if (includs && includs instanceof Array) {
       includs.forEach(item => {
         projection[item] = 1;
       });
     }
-    return await this.document.find(option, projection);
+    return await this.document.find(option, projection)
+      .sort(sort);
   }
 
   async findById(_id, includs) {

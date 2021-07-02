@@ -8,6 +8,12 @@ class HomeController extends Controller {
     // const { ctx } = this;
     // ctx.body = 'hi, egg';
     const { ctx } = this;
+    try {
+      const result = await ctx.curl('https://www.baiduc.com1');
+      console.log(result);
+    } catch (e) {
+      console.log('=====抓取失败');
+    }
 
     // const result = await ctx.curl('https://coinmarketcap.com/new/', {
     //   method: 'get',

@@ -20,6 +20,17 @@ class MarketService extends Service {
       return await Market.create(data);
     }
   }
+
+  async listMarket(results, page) {
+    const list = await this.pageList({}, Number(page), Number(results), [], { updated: -1 });
+    return list;
+  }
+
+  async findAll() {
+    const list = await this.find({}, [], { updated: -1 });
+    return list;
+  }
+
 }
 
 

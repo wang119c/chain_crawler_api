@@ -12,7 +12,8 @@
     "egg-cors": "^2.2.3",
     "egg-mongoose": "^3.3.1",
     "egg-scripts": "^2.11.0",
-    "utility": "^1.17.0"
+    "utility": "^1.17.0",
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",

@@ -8,38 +8,31 @@ class CoinvoteController extends Controller {
     const { ctx } = this;
     const { market } = ctx.service;
     const baseUrl = 'https://coinvote.cc';
-    const result = await ctx.curl(`${baseUrl}/coins/1&order_by=today`, {
-      method: 'get',
-      headers: {
-        'user-agent': this.getUserAgent(),
-      },
-      timeout: 1000 * 60,
-    });
-    const htmlData = result.data.toString();
-    const $ = cheerio.load(htmlData);
-    const divNode = $('.regular-table')
-      .find('.coin-table.redirect-coin');
-    divNode.each((i, ele) => {
-      const dataHref = $(ele)
-        .attr('data-href');
-      const needParseUrl = `${baseUrl}/${dataHref}`;
-      console.log('============', needParseUrl);
-    });
-
-
-    // trNode.each(async (i, elem) => {
-    //   const currency_name = $(elem)
-    //     .find('td')
-    //     .eq(2)
-    //     .find('.cmc-link>div>div>p')
-    //     .text();
-    //
-    //   const needParseUrl = `${baseUrl}/currencies/${ctx.helper.hump2Underline(currency_name)}/`;
-    //   const parseData = await this.parseDetail(needParseUrl);
-    //   if (parseData) {
-    //     market.add(parseData);
-    //   }
-    // });
+    let i = 1;
+    while (i <= 3) {
+      const result = await ctx.curl(`${baseUrl}/coins/${i}&order_by=today`, {
+        method: 'get',
+        headers: {
+          'user-agent': this.getUserAgent(),
+        },
+        timeout: 1000 * 60,
+      });
+      const htmlData = result.data.toString();
+      const $ = cheerio.load(htmlData);
+      const divNode = $('.regular-table')
+        .find('.coin-table.redirect-coin');
+      divNode.each(async (i, ele) => {
+        const dataHref = $(ele)
+          .attr('data-href');
+        const needParseUrl = `${baseUrl}/${dataHref}`;
+        const parseData = await this.parseDetail(needParseUrl);
+        if (parseData) {
+          market.add(parseData);
+        }
+        // console.log('============', parseData);
+      });
+      i++;
+    }
     ctx.body = {
       status: 200,
     };
@@ -52,31 +45,55 @@ class CoinvoteController extends Controller {
       headers: {
         'user-agent': this.getUserAgent(),
       },
-      timeout: 1000 * 20,
+      timeout: 1000 * 60,
     });
 
     const htmlData = result.data.toString();
     const $ = cheerio.load(htmlData);
-    // 解析出来script 标签内的数据 ， 然后转换成json 格式
-    const nextDataJsonStr = $('script#__NEXT_DATA__')
-      .html();
-    if (nextDataJsonStr === null) {
-      return null;
-    }
-    const jsonData = JSON.parse(nextDataJsonStr.replace(/\n|\r/g, ''));
-    const info = jsonData.props.initialProps.pageProps.info;
-    const platforms = info.platforms ? info.platforms[0] : '';
-    const contractAddress1 = platforms ? platforms.contractAddress : '';
-    const md5Code1 = utility.md5(info.symbol.toLowerCase() + contractAddress1);
+
+    // currencyName , currencyAs
+    const currentcy = $('.coin-row>h2')
+      .text()
+      .trim()
+      .split(' ');
+    const currencyName1 = currentcy[0];
+    const currencyAs1 = $('.coin-row>h2>b')
+      .text()
+      .trim();
+
+    // contractAddress
+    const contractAddress1 = $('.coin-bsc a:first')
+      .text();
+
+    // website , communityLinks , chatLink
+    const coinPageColumnNode = $('.coin-column .coin-page-column a');
+
+    const website1 = [];
+    const communityLinks1 = [];
+    const chatLink1 = [];
+
+    coinPageColumnNode.each((i, elem) => {
+      const href = $(elem)
+        .attr('href');
+      if (i === 0) {
+        website1.push(href);
+      } else if (this.ctx.helper.isChatLink(href)) {
+        chatLink1.push(href);
+      } else {
+        communityLinks1.push(href);
+      }
+    });
+
+    const md5Code1 = utility.md5(currencyAs1.toLowerCase() + contractAddress1);
     return {
-      currencyName: info.name || '',
-      currencyAbbreviations: info.symbol || '',
+      currencyName: currencyName1,
+      currencyAbbreviations: currencyAs1,
       md5Code: md5Code1,
       currentLink: needParseUrl,
       contractAddress: contractAddress1,
-      website: info.urls.website || '',
-      communityLinks: [ ...info.urls.message_board, ...info.urls.announcement, ...info.urls.reddit ],
-      chatLink: info.urls.chat || [],
+      website: website1,
+      communityLinks: communityLinks1,
+      chatLink: chatLink1,
       chartLink: '',
     };
   }

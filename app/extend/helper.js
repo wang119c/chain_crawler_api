@@ -20,6 +20,17 @@ module.exports = {
       .replace(/(\s|\.)/g, '-')
       .replace(',', '');
   },
+  isChatLink(str) {
+    if (
+      str.indexOf('//t.me') !== -1 ||
+      str.indexOf('//twitter.com') !== -1 ||
+      str.indexOf('//www.instagram.com') !== -1 ||
+      str.indexOf('//discord.com') !== -1
+    ) {
+      return true;
+    }
+    return false;
+  },
   hump2Underline2(data) {
     if (data.indexOf('RealT Token') !== -1) {
       const arr = data.split('-');

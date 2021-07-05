@@ -12,6 +12,7 @@ module.exports = app => {
   router.get('/coingecko/recently', controller.coingeckoRecently.index);
   router.get('/coinvote/coins', controller.coinvote.coins); // 待开发
   router.get('/coinsniper', controller.coinsniper.index); // 待开发
+  router.get('/coinhunt', controller.coinhunt.index);
   // router.get('/article', controller.article.index);
   // router.post('/user/add', controller.user.add);
   router.get('/', controller.home.index);

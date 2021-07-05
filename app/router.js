@@ -13,6 +13,8 @@ module.exports = app => {
   router.get('/coinvote/coins', controller.coinvote.coins); // 待开发
   router.get('/coinsniper', controller.coinsniper.index); // 待开发
   router.get('/coinhunt', controller.coinhunt.index);
+  router.get('/livecoinwatch/trending', controller.livecoinwatch.trending);
+  router.get('/livecoinwatch/trending', controller.livecoinwatch.trending);
   // router.get('/article', controller.article.index);
   // router.post('/user/add', controller.user.add);
   router.get('/', controller.home.index);

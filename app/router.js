@@ -14,7 +14,7 @@ module.exports = app => {
   router.get('/coinsniper', controller.coinsniper.index); // 待开发
   router.get('/coinhunt', controller.coinhunt.index);
   router.get('/livecoinwatch/trending', controller.livecoinwatch.trending);
-  router.get('/livecoinwatch/trending', controller.livecoinwatch.trending);
+  router.get('/l100xcoinhunt/today', controller.l100xcoinhunt.today);
   // router.get('/article', controller.article.index);
   // router.post('/user/add', controller.user.add);
   router.get('/', controller.home.index);

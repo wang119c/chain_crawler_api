@@ -16,6 +16,8 @@ module.exports = app => {
   router.get('/livecoinwatch/trending', controller.livecoinwatch.trending);
   router.get('/l100xcoinhunt/today', controller.l100xcoinhunt.today);
   router.get('/cointoplist', controller.cointoplist.index);
+  router.get('/freshcoins', controller.freshcoins.index);
+  router.get('/cryptotokenspace/tokens', controller.cryptotokenspace.tokens);
   // router.get('/article', controller.article.index);
   // router.post('/user/add', controller.user.add);
   router.get('/', controller.home.index);

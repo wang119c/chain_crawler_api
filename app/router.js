@@ -18,6 +18,9 @@ module.exports = app => {
   router.get('/cointoplist', controller.cointoplist.index);
   router.get('/freshcoins', controller.freshcoins.index);
   router.get('/cryptotokenspace/tokens', controller.cryptotokenspace.tokens);
+  router.get('/coinseek', controller.coinseek.index);
+  router.get('/gemfinder', controller.gemfinder.index);
+  router.get('/coindiscovery', controller.coindiscovery.index);
   // router.get('/article', controller.article.index);
   // router.post('/user/add', controller.user.add);
   router.get('/', controller.home.index);

@@ -8,7 +8,7 @@ class CoindiscoveryController extends Controller {
   async index() {
     const { ctx } = this;
     const { market } = ctx.service;
-    const baseUrl = 'https://gemfinder.cc';
+    const baseUrl = 'https://coindiscovery.app';
     try {
       const result = await ctx.curl(`${baseUrl}`, {
         method: 'get',
@@ -19,19 +19,12 @@ class CoindiscoveryController extends Controller {
       });
       const htmlData = result.data.toString();
       const $ = cheerio.load(htmlData);
-      const ulNode = $('.table_view');
+      const trNode = $('.clickable-row.rank');
       const urls = [];
-      ulNode.each((i, elem) => {
-        const liNode = $(elem)
-          .find('li');
-        liNode.each((li_i, li_elem) => {
-          const url = $(li_elem)
-            .find('.singlecoinlink')
-            .attr('data-href');
-          if (url) {
-            urls.push(url);
-          }
-        });
+      trNode.each((i, elem) => {
+        const url = $(elem)
+          .attr('data-href');
+        urls.push(url);
       });
       async.mapLimit(urls, urls.length, async href => {
         const parseData = await this.parseDetail(href);
@@ -64,32 +57,33 @@ class CoindiscoveryController extends Controller {
       const htmlData = result.data.toString();
       const $ = cheerio.load(htmlData);
 
-      const currencyName1 = $('.coin_intro h3.mb-0')
+      const currency = $('.TimeAndName .Name')
         .text();
-      const currencyAbbreviations1 = $('.coin_intro p.mb-4')
+      const currencySplit = currency.split(' ');
+      const currencyName1 = currencySplit[0].trim();
+      currency.match(/\((.+)\)/);
+      const currencyAbbreviations1 = RegExp.$1;
+      const contractAddress1 = $('.Coin_Address')
+        .find('span')
+        .eq(1)
         .text();
 
-      const chatNode = $('.coin_intro .btn-group a');
-      const chatLink1 = [];
-      chatNode.each((i, elem) => {
-        const chatUrl = $(elem)
-          .attr('href');
-        chatLink1.push(chatUrl);
-      });
-
-      const aNode = $('.coin_intro a');
+      const liNode = $('.time-btn ul li');
       const urls = [];
-      aNode.each((i, elem) => {
+      liNode.each((i, elem) => {
         const url = $(elem)
+          .find('a')
           .attr('href');
         urls.push(url);
       });
-      const chartLink1 = urls.slice(chatLink1.length, urls.length - 1);
-      const website1 = urls[urls.length - 1];
-      const contractAddress1 = $('#binance_address')
-        .text()
-        .trim();
-
+      const website1 = urls[1];
+      const chatLink1 = [];
+      urls.forEach((item, index) => {
+        if (index === 1) {
+          return;
+        }
+        chatLink1.push(item);
+      });
       return {
         currencyName: currencyName1,
         currencyAbbreviations: currencyAbbreviations1,
@@ -99,7 +93,7 @@ class CoindiscoveryController extends Controller {
         website: website1,
         communityLinks: [],
         chatLink: chatLink1,
-        chartLink: chartLink1,
+        chartLink: [],
       };
     } catch (err) {
       console.log(`======${needParseUrl}抓取失败======`);

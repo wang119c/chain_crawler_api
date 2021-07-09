@@ -30,6 +30,12 @@ module.exports = app => {
   router.get('/pancakeswap/swap', controller.pancakeswap.swap);
   router.get('/uniswap/swap', controller.uniswap.swap);
   router.get('/mdex/swap', controller.mdex.swap);
+
+  // broswer
+  router.get('/bscscan', controller.bscscan.index);
+  // router.get('/etherscan', controller.etherscan.index);
+  // router.get('/tronscan', controller.tronscan.index);
+
   // router.get('/article', controller.article.index);
   // router.post('/user/add', controller.user.add);
   router.get('/', controller.home.index);

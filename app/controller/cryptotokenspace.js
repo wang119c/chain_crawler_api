@@ -1,44 +1,46 @@
 'use strict';
 const Controller = require('../core/BaseController');
+const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 const utility = require('utility');
 const async = require('async');
+const path = require('path');
 
 class CryptotokenspaceController extends Controller {
+
+
   async tokens() {
     const { ctx } = this;
     const { market } = ctx.service;
-    const baseUrl = 'https://cryptotokenspace.com/';
+    const baseUrl = 'https://cryptotokenspace.com';
 
     try {
-      const result = await ctx.curl(`${baseUrl}/Tokens`, {
-        method: 'get',
-        headers: {
-          'user-agent': this.getUserAgent(),
-        },
-        timeout: 1000 * 20,
+      const browser = await puppeteer.launch({
+        headless: true,
+        executablePath: path.resolve('/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'),
       });
-      const htmlData = result.data.toString();
-      const $ = cheerio.load(htmlData);
-      const trNode = $('.table-responsive')
+      const page = await browser.newPage();
+      await page.setDefaultNavigationTimeout(0);
+      await page.goto(`${baseUrl}/Tokens?pageNumber=1`);
+      const bodyHandle = await page.$('body');
+      const html = await page.evaluate(body => body.innerHTML, bodyHandle);
+      const $ = cheerio.load(html);
+      const trNode = $('#tokensTable tbody')
         .find('tr');
-      const hrefArr = [];
+      await bodyHandle.dispose();
+
       trNode.each(async (i, elem) => {
-        const href = $(elem)
-          .find('td:last a')
-          .attr('href');
-        if (href && href.split('/')[2].trim() !== '') {
-          const needParseUrl = `${baseUrl}${href}`;
-          hrefArr.push(needParseUrl);
-        }
-      });
-      async.mapLimit(hrefArr, hrefArr.length, async href => {
+        const hrefStr = $(elem)
+          .attr('onclick')
+          .split('?')[1];
+        const href = `${baseUrl}/Tokens/Token?` + hrefStr.substring(0, hrefStr.length - 2);
         const parseData = await this.parseDetail(href);
         if (parseData && parseData.currencyName) {
           market.add(parseData);
         }
       });
-
+      await browser.close();
+      return;
     } catch (err) {
       // console.log(`====${baseUrl}/en/coins/recently_added?page=${i}===请求失败`);
     }
@@ -64,65 +66,29 @@ class CryptotokenspaceController extends Controller {
       const htmlData = result.data.toString();
       const $ = cheerio.load(htmlData);
 
-      const h3Text = $('.listing-header h3')
+      const h2Text = $('.col-sm-12.text-center')
+        .find('h2')
         .text();
+      const h2Arr = h2Text.split('(');
+      const currencyName1 = h2Arr[0].trim();
+      h2Text.match(/\((.*)\)/);
+      const currencyAbbreviations1 = RegExp.$1;
+      const contractAddress1 = $('.col-sm-6.offset-sm-3.mt-4 > input')
+        .val();
 
-      const currencyName1 = h3Text.trim()
-        .split(' ')[0];
-      const currencyAbbreviations1 = $('.listing-header h3 span')
-        .text()
-        .trim();
-      const contractAddress1 = $('.contract span')
-        .text()
-        .trim();
+      const website1 = $('.d-block.mt-4')
+        .eq(0)
+        .find('a')
+        .eq(0)
+        .attr('href');
 
-      const trNode = $('.table')
-        .find('tr');
-
-      const splitIndexArr = [];
-      trNode.each((index, item) => {
-        const tdNode = $(item)
-          .find('td');
-        tdNode.length === 0 && splitIndexArr.push(index);
-      });
-
-      // 只需获取两部分
-      const websiteChatlinks = trNode.slice(splitIndexArr[0], splitIndexArr[1]);
-      const chartLinks = trNode.slice(splitIndexArr[1], splitIndexArr[2]);
-
-      const website1 = [];
+      const aNode = $('.d-block.mt-4')
+        .eq(1)
+        .find('a');
       const chatLink1 = [];
-
-      websiteChatlinks.each((index, elem) => {
-        const title = $(elem)
-          .find('td')
-          .eq(0)
-          .text()
-          .trim();
-        const value = $(elem)
-          .find('td')
-          .eq(1)
-          .find('a')
-          .attr('href');
-        if ([ 'Website' ].includes(title)) {
-          website1.push(value);
-        } else {
-          if (value) {
-            chatLink1.push(value);
-          }
-        }
-      });
-
-      const chartLinks1 = [];
-      chartLinks.each((index, elem) => {
-        const value = $(elem)
-          .find('td')
-          .eq(1)
-          .find('a')
-          .attr('href');
-        if (value) {
-          chartLinks1.push(value);
-        }
+      aNode.each((i, elem) => {
+        chatLink1.push($(elem)
+          .attr('href'));
       });
 
       return {
@@ -134,7 +100,7 @@ class CryptotokenspaceController extends Controller {
         website: website1,
         communityLinks: [],
         chatLink: chatLink1,
-        chartLink: chartLinks1,
+        chartLink: [],
       };
     } catch (err) {
       console.log(`======${needParseUrl}抓取失败======`);

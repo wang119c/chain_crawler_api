@@ -22,6 +22,13 @@ module.exports = app => {
   router.get('/gemfinder', controller.gemfinder.index);
   router.get('/coindiscovery', controller.coindiscovery.index);
   router.get('/rival', controller.rival.index);
+
+
+  // dex
+  router.get('/dex/lists', controller.dex.index);
+  router.get('/dex/download', controller.dex.download);
+  router.get('/pancakeswap/swap', controller.pancakeswap.swap);
+
   // router.get('/article', controller.article.index);
   // router.post('/user/add', controller.user.add);
   router.get('/', controller.home.index);

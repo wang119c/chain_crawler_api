@@ -28,7 +28,8 @@ module.exports = app => {
   router.get('/dex/lists', controller.dex.index);
   router.get('/dex/download', controller.dex.download);
   router.get('/pancakeswap/swap', controller.pancakeswap.swap);
-
+  router.get('/uniswap/swap', controller.uniswap.swap);
+  router.get('/mdex/swap', controller.mdex.swap);
   // router.get('/article', controller.article.index);
   // router.post('/user/add', controller.user.add);
   router.get('/', controller.home.index);

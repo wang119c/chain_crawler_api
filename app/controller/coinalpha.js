@@ -3,17 +3,13 @@ const Controller = require('../core/BaseController');
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 const utility = require('utility');
-const async = require('async');
 const path = require('path');
 
-class CryptotokenspaceController extends Controller {
-
-
-  async tokens() {
+class CoinalphaController extends Controller {
+  async index() {
     const { ctx } = this;
     const { market } = ctx.service;
-    const baseUrl = 'https://cryptotokenspace.com';
-
+    const baseUrl = 'https://coinalpha.app';
     try {
       const browser = await puppeteer.launch({
         headless: true,
@@ -21,20 +17,21 @@ class CryptotokenspaceController extends Controller {
       });
       const page = await browser.newPage();
       await page.setDefaultNavigationTimeout(0);
-      await page.goto(`${baseUrl}/Tokens?pageNumber=1`);
+      await page.goto(`${baseUrl}`);
+      await page.waitForSelector('.table.coinlistMain');
       const bodyHandle = await page.$('body');
       const html = await page.evaluate(body => body.innerHTML, bodyHandle);
       const $ = cheerio.load(html);
-      const trNode = $('#tokensTable tbody')
+      const trNode = $('.table.coinlistMain')
         .find('tr');
       await bodyHandle.dispose();
 
       trNode.each(async (i, elem) => {
-        const hrefStr = $(elem)
-          .attr('onclick')
-          .split('?')[1];
-        const href = `${baseUrl}/Tokens/Token?` + hrefStr.substring(0, hrefStr.length - 2);
-        const parseData = await this.parseDetail(href);
+        const val = $(elem)
+          .find('input.urlTargetChange')
+          .val();
+        const needParseUrl = `${baseUrl}/${val}`;
+        const parseData = await this.parseDetail(needParseUrl);
         if (parseData && parseData.currencyName) {
           market.add(parseData);
         }
@@ -64,31 +61,27 @@ class CryptotokenspaceController extends Controller {
       });
       const htmlData = result.data.toString();
       const $ = cheerio.load(htmlData);
+      const liNode = $('.coin-social li');
 
-      const h2Text = $('.col-sm-12.text-center')
-        .find('h2')
-        .text();
-      const h2Arr = h2Text.split('(');
-      const currencyName1 = h2Arr[0].trim();
-      h2Text.match(/\((.*)\)/);
-      const currencyAbbreviations1 = RegExp.$1;
-      const contractAddress1 = $('.col-sm-6.offset-sm-3.mt-4 > input')
-        .val();
-
-      const website1 = $('.d-block.mt-4')
-        .eq(0)
+      const urls = [];
+      liNode.each((i, elem) => {
+        const link = $(elem)
+          .find('a')
+          .attr('href');
+        urls.push(link);
+      });
+      const website1 = [ urls[0] ];
+      const chatLink1 = [ urls.slice(1, urls.length - 1) ];
+      const chartLink1 = [ $('.post-info')
         .find('a')
         .eq(0)
-        .attr('href');
-
-      const aNode = $('.d-block.mt-4')
-        .eq(1)
-        .find('a');
-      const chatLink1 = [];
-      aNode.each((i, elem) => {
-        chatLink1.push($(elem)
-          .attr('href'));
-      });
+        .attr('href') ];
+      const h1Text = $('.coinTitleDiv h1')
+        .text();
+      const currencyName1 = h1Text.split('$')[0].trim();
+      const currencyAbbreviations1 = h1Text.split('$')[1].trim();
+      const contractAddress1 = $('h2.contractAddress')
+        .text();
 
       return {
         currencyName: currencyName1,
@@ -99,7 +92,7 @@ class CryptotokenspaceController extends Controller {
         website: website1,
         communityLinks: [],
         chatLink: chatLink1,
-        chartLink: [],
+        chartLink: chartLink1,
       };
     } catch (err) {
       console.log(`======${needParseUrl}抓取失败======`);
@@ -107,4 +100,4 @@ class CryptotokenspaceController extends Controller {
   }
 }
 
-module.exports = CryptotokenspaceController;
+module.exports = CoinalphaController;

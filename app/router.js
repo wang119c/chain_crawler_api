@@ -10,8 +10,9 @@ module.exports = app => {
   router.get('/coinmarketcap/new', controller.coinmarketcapNew.index);
   router.get('/coinmarketcap/gl', controller.coinmarketcapGl.index);
   router.get('/coingecko/recently', controller.coingeckoRecently.index);
-  router.get('/coinvote/coins', controller.coinvote.coins); // 待开发
-  router.get('/coinsniper', controller.coinsniper.index); // 待开发
+  router.get('/coinvote/coins', controller.coinvote.coins);
+  router.get('/coinalpha', controller.coinalpha.index);
+  router.get('/coinsniper', controller.coinsniper.index);
   router.get('/coinhunt', controller.coinhunt.index);
   router.get('/livecoinwatch/trending', controller.livecoinwatch.trending);
   router.get('/l100xcoinhunt/today', controller.l100xcoinhunt.today);

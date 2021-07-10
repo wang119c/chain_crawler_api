@@ -32,7 +32,7 @@ module.exports = app => {
   router.get('/mdex/swap', controller.mdex.swap);
 
   // broswer
-  router.get('/bscscan', controller.bscscan.index);
+  // router.get('/bscscan', controller.bscscan.index);
   // router.get('/etherscan', controller.etherscan.index);
   // router.get('/tronscan', controller.tronscan.index);
 

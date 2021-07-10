@@ -39,7 +39,7 @@ class MdexController extends Controller {
         },
         data,
         timeout: 1000 * 20,
-        dataType: 'json',
+        dataType: 'jjsonson',
       });
       return result.data.data.tokens;
     } catch (err) {
